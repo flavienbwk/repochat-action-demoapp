@@ -1,0 +1,32 @@
+name: "Deploy Repochat for this repo"
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: flavienbwk/repochat-action@v0
+      name: 'Deploy Repochat'
+      id: deploy_repochat
+      with:
+        # All parameters not explicitly marked as "optional" are required
+        dirs_to_scan: "README.md,api,app"  # comma-separated glob dirs to analyze
+        interface_password: ${{ secrets.INTERFACE_PASSWORD }}  # optional
+        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+        openai_model_type_inference: "gpt-4o-mini"
+        openai_model_type_embedding : "text-embedding-3-small"
+        provider_name: 'scaleway'
+        provider_key_id: ${{ secrets.PROVIDER_KEY_ID }}
+        provider_key_secret: ${{ secrets.PROVIDER_KEY_SECRET }}
+        provider_project_id: ${{ secrets.PROVIDER_PROJECT_ID }}
+        provider_default_region: 'fr-par'
+        provider_default_zone: 'fr-par-2'
+
+    - name: Get repochat domain
+      run: echo "DOMAIN=${{ steps.deploy_repochat.outputs.domain }}" >> $GITHUB_OUTPUT
+      id: repochat_domain
